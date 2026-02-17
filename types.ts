@@ -11,6 +11,7 @@ export type ObjectType =
   | 'Baine Marie'
   | 'Asado'
   | 'Fryer'
+  | 'Prep Table'
   | 'Other (Hot)'
   | 'Other (aesthetic)'
   | 'Other (cold)'
@@ -60,6 +61,7 @@ export const OBJECT_DEFAULTS: Record<ObjectType, { width: number, length: number
   'Baine Marie': { width: 1.2, length: 0.6, color: 'rgba(245, 158, 11, 1)', transparent: false, ignoreCollision: false },
   'Asado': { width: 1.5, length: 1, color: 'rgba(185, 28, 28, 1)', transparent: false, ignoreCollision: false },
   'Fryer': { width: 0.6, length: 0.8, color: 'rgba(234, 179, 8, 1)', transparent: false, ignoreCollision: false },
+  'Prep Table': { width: 2, length: 1, color: 'rgba(148, 163, 184, 1)', transparent: false, ignoreCollision: false },
   'Other (Hot)': { width: 1, length: 1, color: 'rgba(153, 27, 27, 1)', transparent: false, ignoreCollision: false },
   'Other (aesthetic)': { width: 0.5, length: 0.5, color: 'rgba(16, 185, 129, 1)', transparent: false, ignoreCollision: false },
   'Other (cold)': { width: 1, length: 1, color: 'rgba(56, 189, 248, 1)', transparent: false, ignoreCollision: false },
