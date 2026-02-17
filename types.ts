@@ -1,6 +1,7 @@
 
 export type ObjectType = 
-  | 'Pergoda'
+  | 'Pagoda'
+  | 'Tent'
   | 'Van/Truck'
   | 'Smoker'
   | 'Hot Hold'
@@ -22,7 +23,9 @@ export type ObjectType =
   | 'Collection Point'
   | 'Queue Barrier'
   | 'Fire Extinguisher'
-  | 'Entry/Exit Point';
+  | 'Entry/Exit Point'
+  | 'Bench Set'
+  | 'Flag';
 
 export interface StandObject {
   id: string;
@@ -46,7 +49,8 @@ export interface Boundary {
 }
 
 export const OBJECT_DEFAULTS: Record<ObjectType, { width: number, length: number, color: string, transparent: boolean, ignoreCollision: boolean }> = {
-  'Pergoda': { width: 3, length: 3, color: 'rgba(59, 130, 246, 0.3)', transparent: true, ignoreCollision: true },
+  'Pagoda': { width: 3, length: 3, color: 'rgba(59, 130, 246, 0.3)', transparent: true, ignoreCollision: true },
+  'Tent': { width: 6, length: 10, color: 'rgba(148, 163, 184, 0.3)', transparent: true, ignoreCollision: true },
   'Van/Truck': { width: 2.5, length: 6, color: 'rgba(107, 114, 128, 0.3)', transparent: true, ignoreCollision: true },
   'Smoker': { width: 1.2, length: 1, color: 'rgba(31, 41, 55, 1)', transparent: false, ignoreCollision: false },
   'Hot Hold': { width: 0.8, length: 0.8, color: 'rgba(239, 68, 68, 1)', transparent: false, ignoreCollision: false },
@@ -69,4 +73,6 @@ export const OBJECT_DEFAULTS: Record<ObjectType, { width: number, length: number
   'Queue Barrier': { width: 2, length: 0.1, color: 'rgba(100, 116, 139, 1)', transparent: false, ignoreCollision: true },
   'Fire Extinguisher': { width: 0.4, length: 0.4, color: 'rgba(220, 38, 38, 1)', transparent: false, ignoreCollision: true },
   'Entry/Exit Point': { width: 1.2, length: 0.2, color: 'rgba(34, 197, 94, 1)', transparent: false, ignoreCollision: true },
+  'Bench Set': { width: 2, length: 1.5, color: 'rgba(120, 113, 108, 1)', transparent: false, ignoreCollision: false },
+  'Flag': { width: 0.4, length: 0.4, color: 'rgba(244, 63, 94, 1)', transparent: false, ignoreCollision: true },
 };

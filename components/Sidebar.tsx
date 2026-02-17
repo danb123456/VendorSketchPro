@@ -8,10 +8,10 @@ interface SidebarProps {
 
 const CATEGORIES = {
   'Stall Points': ['Service Point', 'Collection Point', 'Entry/Exit Point'],
-  Infrastructure: ['Pergoda', 'Van/Truck', 'Queue Barrier'],
+  Infrastructure: ['Pagoda', 'Tent', 'Van/Truck', 'Queue Barrier'],
   Safety: ['Fire Extinguisher'],
   Equipment: ['Smoker', 'Hot Hold', 'Oven', 'Fridge', 'Freezer', 'Baine Marie', 'Asado', 'Fryer'],
-  Other: ['Other (Hot)', 'Other (aesthetic)', 'Other (cold)', 'Other (misc)'],
+  Other: ['Other (Hot)', 'Other (aesthetic)', 'Other (cold)', 'Other (misc)', 'Bench Set', 'Flag'],
   Staff: ['Pitmaster', 'Chef', 'Manager', 'Server']
 };
 
@@ -38,7 +38,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onAddObject }) => {
                   className="flex flex-col items-center justify-center p-3 border border-slate-100 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 transition-all group text-center"
                 >
                   <div 
-                    className="w-10 h-10 rounded-lg mb-2 shadow-sm transition group-hover:scale-110 flex items-center justify-center" 
+                    className="w-10 h-10 rounded-lg mb-2 shadow-sm transition group-hover:scale-110 flex items-center justify-center overflow-hidden" 
                     style={{ backgroundColor: OBJECT_DEFAULTS[item as ObjectType].color }}
                   >
                     {item === 'Fire Extinguisher' && <span className="text-white font-bold text-[10px]">EXT</span>}

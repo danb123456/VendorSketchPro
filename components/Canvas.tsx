@@ -68,11 +68,19 @@ const Canvas: React.FC<CanvasProps> = ({ boundary, objects, selectedId, scale, o
           }}
         />
         
+        {/* Orientation Labels */}
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-black text-slate-800 uppercase tracking-[0.3em] bg-white px-2">
+          Back of House
+        </div>
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-black text-slate-800 uppercase tracking-[0.3em] bg-white px-2">
+          Customer Facing
+        </div>
+
         {/* Dimension Lines */}
-        <div className="absolute -top-10 left-0 text-xs font-bold text-slate-400 print:text-slate-800">
+        <div className="absolute -top-12 left-0 text-xs font-bold text-slate-400 print:text-slate-800">
           Stand Width: {boundary.width}m
         </div>
-        <div className="absolute -left-10 top-0 text-xs font-bold text-slate-400 rotate-90 origin-top-left translate-x-3 print:text-slate-800">
+        <div className="absolute -left-12 top-0 text-xs font-bold text-slate-400 rotate-90 origin-top-left translate-x-3 print:text-slate-800">
           Stand Length: {boundary.length}m
         </div>
 

@@ -17,6 +17,7 @@ const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isBoundarySet, setIsBoundarySet] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   const [history, setHistory] = useState<StandObject[][]>([]);
   const [redoStack, setRedoStack] = useState<StandObject[][]>([]);
@@ -129,6 +130,9 @@ const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
         link.download = `StandPlan-${safeTraderName}-${safeVendorId}.png`;
         link.href = dataUrl;
         link.click();
+        
+        // Show success pop-up
+        setShowSuccessModal(true);
       } catch (err) {
         console.error('Export failed:', err);
         alert('Export failed. Please try again.');
@@ -247,6 +251,30 @@ const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
           onRemove={removeObject}
           onClose={() => setSelectedId(null)}
         />
+
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl border border-slate-200 text-center animate-in zoom-in-95 duration-200">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">Download Successful</h3>
+              <p className="text-slate-600 mb-6">
+                Please email the floor plan to <br/>
+                <a href="mailto:dan@savourfestival.com" className="font-bold text-emerald-600 hover:underline">dan@savourfestival.com</a>
+              </p>
+              <button 
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-900 transition shadow-lg"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
