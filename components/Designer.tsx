@@ -12,16 +12,45 @@ interface DesignerProps {
 }
 
 const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
-  const [boundary, setBoundary] = useState<Boundary>({ width: 10, length: 8 });
-  const [objects, setObjects] = useState<StandObject[]>([]);
+  const STORAGE_KEY = `vendor-sketch-${vendor.vendorId}`;
+
+  const [boundary, setBoundary] = useState<Boundary>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY}-boundary`);
+    try {
+      return saved ? JSON.parse(saved) : { width: 10, length: 8 };
+    } catch {
+      return { width: 10, length: 8 };
+    }
+  });
+
+  const [objects, setObjects] = useState<StandObject[]>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY}-objects`);
+    try {
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [isBoundarySet, setIsBoundarySet] = useState(false);
+  
+  const [isBoundarySet, setIsBoundarySet] = useState(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY}-isBoundarySet`);
+    return saved === 'true';
+  });
+
   const [isExporting, setIsExporting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   const [history, setHistory] = useState<StandObject[][]>([]);
   const [redoStack, setRedoStack] = useState<StandObject[][]>([]);
   const [scale, setScale] = useState(40);
+
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY}-boundary`, JSON.stringify(boundary));
+    localStorage.setItem(`${STORAGE_KEY}-objects`, JSON.stringify(objects));
+    localStorage.setItem(`${STORAGE_KEY}-isBoundarySet`, isBoundarySet.toString());
+  }, [boundary, objects, isBoundarySet, STORAGE_KEY]);
 
   const saveToHistory = useCallback((currentObjects: StandObject[]) => {
     setHistory(prev => [...prev, currentObjects]);
@@ -96,10 +125,12 @@ const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
   }, [undo, redo, selectedId]);
 
   const resetDesigner = () => {
-    if (confirm("Clear your entire sketch?")) {
+    if (confirm("Clear your entire sketch and reset dimensions?")) {
       saveToHistory(objects);
       setObjects([]);
       setSelectedId(null);
+      setIsBoundarySet(false);
+      setBoundary({ width: 10, length: 8 });
     }
   };
 
