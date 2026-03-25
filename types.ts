@@ -26,6 +26,7 @@ export type ObjectType =
   | 'Fire Extinguisher'
   | 'Entry/Exit Point'
   | 'Bench Set'
+  | 'Cabin/Chalet'
   | 'Flag';
 
 export interface StandObject {
@@ -76,5 +77,6 @@ export const OBJECT_DEFAULTS: Record<ObjectType, { width: number, length: number
   'Fire Extinguisher': { width: 0.4, length: 0.4, color: 'rgba(220, 38, 38, 1)', transparent: false, ignoreCollision: true },
   'Entry/Exit Point': { width: 1.2, length: 0.2, color: 'rgba(34, 197, 94, 1)', transparent: false, ignoreCollision: true },
   'Bench Set': { width: 2, length: 1.5, color: 'rgba(120, 113, 108, 1)', transparent: false, ignoreCollision: false },
+  'Cabin/Chalet': { width: 2.4, length: 3, color: 'rgba(146, 64, 14, 0.4)', transparent: true, ignoreCollision: true },
   'Flag': { width: 0.4, length: 0.4, color: 'rgba(244, 63, 94, 1)', transparent: false, ignoreCollision: true },
 };

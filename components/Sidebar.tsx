@@ -8,7 +8,7 @@ interface SidebarProps {
 
 const CATEGORIES = {
   'Stall Points': ['Service Point', 'Collection Point', 'Entry/Exit Point'],
-  Infrastructure: ['Pagoda', 'Tent', 'Van/Truck', 'Queue Barrier'],
+  Infrastructure: ['Pagoda', 'Tent', 'Cabin/Chalet', 'Van/Truck', 'Queue Barrier'],
   Safety: ['Fire Extinguisher'],
   Equipment: ['Smoker', 'Hot Hold', 'Oven', 'Fridge', 'Freezer', 'Baine Marie', 'Asado', 'Fryer', 'Prep Table'],
   Other: ['Other (Hot)', 'Other (aesthetic)', 'Other (cold)', 'Other (misc)', 'Bench Set', 'Flag'],
