@@ -6,10 +6,11 @@ interface ControlsProps {
   selectedObject: StandObject | null;
   onUpdate: (id: string, updates: Partial<StandObject>, finalUpdate?: boolean) => void;
   onRemove: (id: string) => void;
+  onDuplicate: (id: string) => void;
   onClose: () => void;
 }
 
-const Controls: React.FC<ControlsProps> = ({ selectedObject, onUpdate, onRemove, onClose }) => {
+const Controls: React.FC<ControlsProps> = ({ selectedObject, onUpdate, onRemove, onDuplicate, onClose }) => {
   if (!selectedObject) return null;
 
   return (
@@ -23,14 +24,27 @@ const Controls: React.FC<ControlsProps> = ({ selectedObject, onUpdate, onRemove,
               {selectedObject.type} Edits
             </h3>
           </div>
-          <button 
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-50 transition"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onDuplicate(selectedObject.id)}
+              className="text-emerald-600 hover:text-emerald-700 p-2 rounded-lg hover:bg-emerald-50 transition flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
+              title="Duplicate (Ctrl+C, Ctrl+V)"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+              </svg>
+              Duplicate
+            </button>
+            <div className="w-px h-4 bg-slate-200 mx-1" />
+            <button 
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-50 transition"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
         
         <div className="flex items-end gap-6">

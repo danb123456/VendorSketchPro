@@ -41,10 +41,12 @@ const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
 
   const [isExporting, setIsExporting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [clipboard, setClipboard] = useState<StandObject | null>(null);
   
   const [history, setHistory] = useState<StandObject[][]>([]);
   const [redoStack, setRedoStack] = useState<StandObject[][]>([]);
   const [scale, setScale] = useState(40);
+  const [isCounterExpanded, setIsCounterExpanded] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}-boundary`, JSON.stringify(boundary));
@@ -107,6 +109,42 @@ const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
     }
   }, [redoStack, objects]);
 
+  const copyObject = useCallback(() => {
+    const selected = objects.find(o => o.id === selectedId);
+    if (selected) {
+      setClipboard({ ...selected });
+    }
+  }, [objects, selectedId]);
+
+  const pasteObject = useCallback(() => {
+    if (clipboard) {
+      saveToHistory(objects);
+      const newObj: StandObject = {
+        ...clipboard,
+        id: Math.random().toString(36).substr(2, 9),
+        x: clipboard.x + 0.5,
+        y: clipboard.y + 0.5,
+      };
+      setObjects(prev => [...prev, newObj]);
+      setSelectedId(newObj.id);
+    }
+  }, [clipboard, objects, saveToHistory]);
+
+  const duplicateObject = useCallback((id: string) => {
+    const obj = objects.find(o => o.id === id);
+    if (obj) {
+      saveToHistory(objects);
+      const newObj: StandObject = {
+        ...obj,
+        id: Math.random().toString(36).substr(2, 9),
+        x: obj.x + 0.5,
+        y: obj.y + 0.5,
+      };
+      setObjects(prev => [...prev, newObj]);
+      setSelectedId(newObj.id);
+    }
+  }, [objects, saveToHistory]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
@@ -114,6 +152,14 @@ const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
         else undo();
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
         redo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+        if (!['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName || '')) {
+          copyObject();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        if (!['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName || '')) {
+          pasteObject();
+        }
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selectedId && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName || '')) {
           removeObject(selectedId);
@@ -122,7 +168,7 @@ const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, selectedId]);
+  }, [undo, redo, selectedId, copyObject, pasteObject]);
 
   const resetDesigner = () => {
     if (confirm("Clear your entire sketch and reset dimensions?")) {
@@ -132,6 +178,14 @@ const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
       setIsBoundarySet(false);
       setBoundary({ width: 10, length: 8 });
     }
+  };
+
+  const getObjectBreakdown = () => {
+    const counts: Record<string, number> = {};
+    objects.forEach(obj => {
+      counts[obj.type] = (counts[obj.type] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
   };
 
   const exportDesign = async () => {
@@ -275,11 +329,76 @@ const Designer: React.FC<DesignerProps> = ({ vendor, onLogout }) => {
             onUpdate={updateObject}
           />
         </div>
+
+        {/* Floating Object Counter */}
+        <div 
+          className={`absolute top-24 right-8 z-20 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl shadow-xl transition-all duration-300 print:hidden animate-in fade-in slide-in-from-right-4 ${isCounterExpanded ? 'w-64 p-0 overflow-hidden' : 'w-auto p-2 cursor-pointer hover:bg-white'}`}
+          onClick={() => !isCounterExpanded && setIsCounterExpanded(true)}
+        >
+          {!isCounterExpanded ? (
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Live Count</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-600">Total Objects:</span>
+                  <span className="text-lg font-black text-emerald-600 font-mono leading-none">{objects.length}</span>
+                </div>
+              </div>
+              <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Equipment Breakdown</span>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsCounterExpanded(false);
+                  }}
+                  className="text-slate-400 hover:text-slate-600 transition"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="p-4 max-h-64 overflow-y-auto">
+                {objects.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic text-center py-4">No objects added yet</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {getObjectBreakdown().map(([type, count]) => (
+                      <li key={type} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-2 h-2 rounded-full" 
+                            style={{ backgroundColor: OBJECT_DEFAULTS[type as ObjectType].color }} 
+                          />
+                          <span className="text-slate-700 font-medium">{type}</span>
+                        </div>
+                        <span className="font-mono font-bold text-emerald-600">×{count}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="bg-emerald-50 px-4 py-2 border-t border-emerald-100 flex items-center justify-between">
+                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Total</span>
+                <span className="text-sm font-black text-emerald-700 font-mono">{objects.length}</span>
+              </div>
+            </div>
+          )}
+        </div>
         
         <Controls 
           selectedObject={objects.find(o => o.id === selectedId) || null}
           onUpdate={updateObject}
           onRemove={removeObject}
+          onDuplicate={duplicateObject}
           onClose={() => setSelectedId(null)}
         />
 
