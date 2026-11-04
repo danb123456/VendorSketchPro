@@ -1,11 +1,16 @@
 import { CATALOG, CatalogItem, Plan, Point, StandObject } from "../types";
 import { makeObject, round } from "./model";
-export type Setup = "blank" | "pergola" | "truck";
+export type Setup =
+  "blank" | "pergola" | "pergola-4x3" | "pergola-5x3" | "truck";
 export function starterPlan(plan: Plan, setup: Setup): Plan {
   if (setup === "blank") return plan;
-  const catalog = CATALOG.find(
-    (c) => c.type === (setup === "pergola" ? "Pergola" : "Van / truck"),
-  )!;
+  const catalogType = {
+    pergola: "Pergola",
+    "pergola-4x3": "Pergola 4 × 3 m",
+    "pergola-5x3": "Pergola 5 × 3 m",
+    truck: "Van / truck",
+  }[setup];
+  const catalog = CATALOG.find((c) => c.type === catalogType)!;
   const object = makeObject(catalog, plan);
   if (
     setup === "truck" &&

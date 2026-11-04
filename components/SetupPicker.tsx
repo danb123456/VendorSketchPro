@@ -23,9 +23,21 @@ export default function SetupPicker({
           [
             {
               key: "pergola",
-              name: "Pergola",
+              name: "Pergola 3 × 3 m",
               symbol: "tent",
               detail: "Start with a 3 × 3 m pergola",
+            },
+            {
+              key: "pergola-4x3",
+              name: "Pergola 4 × 3 m",
+              symbol: "tent",
+              detail: "Start with a 4 × 3 m pergola",
+            },
+            {
+              key: "pergola-5x3",
+              name: "Pergola 5 × 3 m",
+              symbol: "tent",
+              detail: "Start with a 5 × 3 m pergola",
             },
             {
               key: "truck",

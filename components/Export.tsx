@@ -7,7 +7,7 @@ import {
   ExternalLink,
   Share2,
 } from "lucide-react";
-import { Plan } from "../types";
+import { Plan, PITCH_STORAGE_NOTE } from "../types";
 import { PlanScene, sceneBounds } from "./PlanScene";
 import { capacity, issuesFor } from "../lib/model";
 import { filename, backupPlan } from "../lib/storage";
@@ -102,6 +102,9 @@ export function ExportSheet({ plan: p }: { plan: Plan }) {
       <text x="48" y="888" fill="#625e58" fontSize="13">
         Queue: {p.queue.laneWidth} m lane width; {p.queue.personSpacing} m
         spacing per person. Capacity is an estimate, not a safety assessment.
+      </text>
+      <text x="48" y="910" fill="#625e58" fontSize="12">
+        {PITCH_STORAGE_NOTE}
       </text>
       <text x="48" y="934" fill="#1d211e" fontSize="20" fontWeight="700">
         Equipment schedule

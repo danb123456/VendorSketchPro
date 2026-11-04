@@ -1,3 +1,4 @@
+import { PITCH_STORAGE_NOTE } from "../types";
 import {
   Check,
   AlertTriangle,
@@ -109,6 +110,7 @@ export default function ReviewPanel({
           ))}
         </div>
       )}
+      <p className="hint">{PITCH_STORAGE_NOTE}</p>
       <label className="field">
         <span>Plan notes for the organiser</span>
         <textarea

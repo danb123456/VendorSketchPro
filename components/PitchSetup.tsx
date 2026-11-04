@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { Plan } from "../types";
+import { Plan, PITCH_STORAGE_NOTE } from "../types";
 import { validDimension } from "../lib/model";
 import Modal from "./Modal";
 export default function PitchSetup({
@@ -26,6 +26,7 @@ export default function PitchSetup({
         The standard pitch is 7 m frontage × 5 m depth. Different pitch sizes
         are only available with written approval from the organiser.
       </div>
+      <p className="hint">{PITCH_STORAGE_NOTE}</p>
       <div className="pitch-diagram">
         <div>
           <span>BACK OF STAND</span>

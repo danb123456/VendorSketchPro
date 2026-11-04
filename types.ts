@@ -86,6 +86,9 @@ const item = (
   color: string,
   symbol: string,
 ): CatalogItem => ({ type, category, kind, width, depth, color, symbol });
+export const PITCH_STORAGE_NOTE =
+  "Large fridge trailers are excluded from your pitch space. They will be placed in the nearest communal back-of-house (BoH) space to you.";
+
 export const CATALOG: CatalogItem[] = [
   item(
     "Service counter",
@@ -133,6 +136,8 @@ export const CATALOG: CatalogItem[] = [
     "arrow",
   ),
   item("Pergola", "Structures", "structure", 3, 3, "#85aec9", "tent"),
+  item("Pergola 4 × 3 m", "Structures", "structure", 4, 3, "#85aec9", "tent"),
+  item("Pergola 5 × 3 m", "Structures", "structure", 5, 3, "#85aec9", "tent"),
   item("Tent", "Structures", "structure", 6, 4, "#85aec9", "tent"),
   item("Cabin / chalet", "Structures", "structure", 2.4, 3, "#ac8a69", "cabin"),
   item("Van / truck", "Structures", "structure", 2.5, 6, "#82929e", "truck"),
