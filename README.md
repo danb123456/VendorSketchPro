@@ -28,17 +28,19 @@ Optionally copy `.env.example` to `.env.local` and set `VITE_ONBOARDING_URL` to 
 
 ## What changed
 
-- Guided pitch → equipment → queue → review workflow, Savour branding and responsive panels.
+- Three-step Setup → Build your stand → Finish flow, starter setups, Savour branding and a full-size drawing area.
+- Bottom equipment tray with tap-to-place and quick Rotate, Duplicate and Remove actions. Detailed fields stay available through Details.
 - New pitches default to 7 m frontage × 5 m depth. Different pitch sizes require written organiser approval. Existing saved pitch dimensions are preserved.
 - Positive dimension validation; editing pitch size preserves equipment.
 - Searchable equipment library with symbols, estimated dimensions, food-trader utilities and custom items. Pagoda is renamed to Pergola, including existing saved items (custom names are preserved).
 - Item names, notes, coordinates, 90° rotation, drag/resize/rotation, keyboard and clickable movement, locking and optional clearance guides.
-- Snapping, alignment guides, zoom/pan, grid toggle and fit controls.
+- Snapping, alignment guides, zoom/pan, two-finger pinch zoom, grid toggle and fit controls.
 - Whole-gesture Undo/Redo with dimension and queue changes included. Field editing respects normal text shortcuts.
 - Rotated rectangle collision checks, meaningful issue lists, structures that can contain equipment, and boundary checks.
-- Straight, front-to-back serpentine and left-to-right serpentine queue templates, editable route points, queue zone and lane dimensions, direction and configurable capacity assumptions.
+- Straight, front-to-back serpentine, left-to-right serpentine and right-to-left serpentine queue templates, editable route points, queue zone and lane dimensions, direction and configurable capacity assumptions.
 - Local autosave with failure reporting; automatic/manual checkpoints, reversible clearing, editable JSON import/export and migration of original browser sketches.
-- Export preview, cropped high-resolution PNG, SVG and multipage PDF with vendor details, date, revision, equipment schedule, notes and queue assumptions.
+- Pre-generated PNG with a persistent Save file link and device sharing where supported; SVG and multipage PDF reports with vendor details, revision, equipment schedule and notes.
+- Optional transparent PNG overlays, physically scaled SVG, metre-based DXF layers and structured JSON for later event mapping. CAD coordinates start at the front-left of the pitch; queue coordinates have negative y. Position/rotation in a whole-event map and platform-specific integration remain future work.
 
 ## Saving and migration
 

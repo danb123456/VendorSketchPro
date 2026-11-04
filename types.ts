@@ -42,7 +42,12 @@ export interface Queue {
   target: number;
   points: Point[];
   template:
-    "none" | "straight" | "serpentine" | "serpentine-horizontal" | "custom";
+    | "none"
+    | "straight"
+    | "serpentine"
+    | "serpentine-horizontal"
+    | "serpentine-horizontal-reverse"
+    | "custom";
 }
 export interface Plan {
   schema: 2;

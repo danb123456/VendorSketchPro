@@ -24,14 +24,18 @@ export default function QueuePanel({
   const update = (patch: Partial<typeof q>) =>
     onChange({ ...p, queue: { ...q, ...patch } });
   const template = (
-    type: "straight" | "serpentine" | "serpentine-horizontal",
+    type:
+      | "straight"
+      | "serpentine"
+      | "serpentine-horizontal"
+      | "serpentine-horizontal-reverse",
   ) => {
     update({ points: queueTemplate(p, type), template: type });
     setRouteEdit(false);
   };
   return (
     <div className="inspector-content">
-      <span className="eyebrow">STEP 03</span>
+      <span className="eyebrow">BUILD YOUR STAND</span>
       <h2>Plan the queue</h2>
       <p className="panel-description">
         Keep customers in the shaded zone in front of your stand, within your
@@ -95,6 +99,31 @@ export default function QueuePanel({
             <path d="M4 23h17a3 3 0 0 0 0-6H7a3 3 0 0 1 0-6h17M20 7l4 4-4 4" />
           </svg>
           <strong>Left to right</strong>
+          <small>Serpentine lanes</small>
+        </button>
+        <button
+          className={
+            q.template === "serpentine-horizontal-reverse"
+              ? "template active"
+              : "template"
+          }
+          onClick={() => template("serpentine-horizontal-reverse")}
+        >
+          <svg
+            style={{ transform: "scaleX(-1)" }}
+            width="28"
+            height="28"
+            viewBox="0 0 28 28"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 23h17a3 3 0 0 0 0-6H7a3 3 0 0 1 0-6h17M20 7l4 4-4 4" />
+          </svg>
+          <strong>Right to left</strong>
           <small>Serpentine lanes</small>
         </button>
       </div>
@@ -207,8 +236,8 @@ export default function QueuePanel({
         Clear route
       </button>
       <p className="hint">
-        Route arrows point towards service. Use the item library to add physical
-        barriers and collection points.
+        Route arrows point towards service. Use the equipment tray to add
+        physical barriers and collection points.
       </p>
     </div>
   );

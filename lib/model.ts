@@ -128,7 +128,11 @@ export const capacity = (p: Plan) =>
   Math.floor(queueLength(p.queue.points) / p.queue.personSpacing);
 export function queueTemplate(
   p: Plan,
-  type: "straight" | "serpentine" | "serpentine-horizontal",
+  type:
+    | "straight"
+    | "serpentine"
+    | "serpentine-horizontal"
+    | "serpentine-horizontal-reverse",
 ): Point[] {
   const half = p.queue.laneWidth / 2,
     left = half,
@@ -141,7 +145,11 @@ export function queueTemplate(
       { x: p.width / 2, y: bottom },
       { x: p.width / 2, y: top },
     ];
-  if (type === "serpentine-horizontal") {
+  if (
+    type === "serpentine-horizontal" ||
+    type === "serpentine-horizontal-reverse"
+  ) {
+    const reverse = type === "serpentine-horizontal-reverse";
     const rows = Math.min(
       100,
       Math.floor((p.queue.depth - p.queue.laneWidth) / p.queue.laneWidth) + 1,
@@ -150,8 +158,8 @@ export function queueTemplate(
     for (let i = 0; i < rows; i++) {
       const y = round(bottom - i * p.queue.laneWidth);
       points.push(
-        { x: round(i % 2 === 0 ? left : right), y },
-        { x: round(i % 2 === 0 ? right : left), y },
+        { x: round((i % 2 === 0) !== reverse ? left : right), y },
+        { x: round((i % 2 === 0) !== reverse ? right : left), y },
       );
     }
     return points;
@@ -355,6 +363,7 @@ export function parsePlan(value: unknown): Plan {
       "straight",
       "serpentine",
       "serpentine-horizontal",
+      "serpentine-horizontal-reverse",
       "custom",
     ].includes(p.queue.template) ||
     typeof p.notes !== "string" ||

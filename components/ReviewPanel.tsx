@@ -54,7 +54,7 @@ export default function ReviewPanel({
   ];
   return (
     <div className="inspector-content">
-      <span className="eyebrow">{step === 4 ? "STEP 04" : "YOUR PLAN"}</span>
+      <span className="eyebrow">{step === 4 ? "STEP 03" : "YOUR PLAN"}</span>
       <h2>{step === 4 ? "Review & download" : "Make it event-ready"}</h2>
       <p className="panel-description">
         {step === 4

@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
   Undo2,
   Redo2,
-  Download,
   ChevronDown,
   Check,
   HardDrive,
@@ -15,14 +14,13 @@ import {
   X,
   ArrowRight,
   Trash2,
-  PanelRightOpen,
+  Route,
 } from "lucide-react";
 import { Plan, CatalogItem, Issue, Version } from "./types";
 import {
   createPlan,
   historyReducer,
   issuesFor,
-  makeObject,
   migrateLegacy,
   parsePlan,
   round,
@@ -37,7 +35,10 @@ import {
   savePlan,
 } from "./lib/storage";
 import Welcome from "./components/Welcome";
-import Library from "./components/Library";
+import EquipmentTray from "./components/EquipmentTray";
+import QuickActions from "./components/QuickActions";
+import SetupPicker from "./components/SetupPicker";
+import { placedObject } from "./lib/builder";
 import Canvas from "./components/Canvas";
 import Inspector from "./components/Inspector";
 import ReviewPanel from "./components/ReviewPanel";
@@ -69,6 +70,7 @@ export default function App() {
   const [selected, setSelected] = useState<string | null>(null),
     [step, setStep] = useState(2),
     [dialog, setDialog] = useState<
+      | "setup"
       | "pitch"
       | "export"
       | "versions"
@@ -79,6 +81,7 @@ export default function App() {
       | null
     >(initial && !initial.pitchConfirmed ? "pitch" : null),
     [libraryOpen, setLibraryOpen] = useState(false),
+    [placing, setPlacing] = useState<CatalogItem | null>(null),
     [panelOpen, setPanelOpen] = useState(false),
     [routeEdit, setRouteEdit] = useState(false),
     [menuOpen, setMenuOpen] = useState(false),
@@ -171,6 +174,7 @@ export default function App() {
         setLibraryOpen(false);
         setPanelOpen(false);
         setRouteEdit(false);
+        setPlacing(null);
       }
     };
     window.addEventListener("keydown", handle);
@@ -195,6 +199,7 @@ export default function App() {
     setStep(p.pitchConfirmed ? 2 : 1);
     setDialog(p.pitchConfirmed ? null : "pitch");
     setSelected(null);
+    setPlacing(null);
     setFileError("");
   }
   function add(c: CatalogItem) {
@@ -202,12 +207,20 @@ export default function App() {
       setMessage("This plan has reached its 400-item limit.");
       return;
     }
-    const o = makeObject(c, plan);
-    commit({ ...plan, objects: [...plan.objects, o] });
-    setSelected(o.id);
-    setStep(2);
+    setPlacing(c);
     setLibraryOpen(false);
-    setPanelOpen(true);
+    setPanelOpen(false);
+    setSelected(null);
+    setRouteEdit(false);
+    setStep(2);
+  }
+  function place(point: { x: number; y: number }) {
+    if (!placing || plan.objects.length >= 400) return;
+    const object = placedObject(placing, plan, point);
+    commit({ ...plan, objects: [...plan.objects, object] });
+    setSelected(object.id);
+    setPlacing(null);
+    setMessage(`${object.name} placed. Check its actual size in Details.`);
   }
   function duplicate(o: Plan["objects"][number]) {
     if (plan.objects.length >= 400) return;
@@ -220,7 +233,7 @@ export default function App() {
     };
     commit({ ...plan, objects: [...plan.objects, next] });
     setSelected(next.id);
-    setPanelOpen(true);
+    setPanelOpen(false);
   }
   function removeSelected() {
     if (!selectedObject) return;
@@ -234,15 +247,20 @@ export default function App() {
   function changeStep(s: number) {
     setStep(s);
     setSelected(null);
-    setPanelOpen(true);
+    setPlacing(null);
+    setLibraryOpen(false);
     setRouteEdit(false);
+    setPanelOpen(s === 3 || s === 4);
     if (s === 1) setDialog("pitch");
   }
   function issueClick(i: Issue) {
     setStep(i.step);
     setSelected(i.objectId || null);
     setPanelOpen(true);
-    if (i.step === 1) setDialog("pitch");
+    if (i.step === 1) {
+      setPanelOpen(false);
+      setDialog("pitch");
+    }
   }
   function openVersions() {
     setVersions(readVersions());
@@ -437,39 +455,37 @@ export default function App() {
               </div>
               <button
                 className="primary download-main"
-                onClick={() => setDialog("export")}
+                aria-label="Finish my stand"
+                onClick={() => changeStep(4)}
               >
-                <Download size={17} />
-                <span>Download plan</span>
+                <Check size={17} />
+                <span>Finish my stand</span>
               </button>
             </div>
           </header>
-          <nav className="steps" aria-label="Planning steps">
-            {[
-              "Confirm pitch",
-              "Add equipment",
-              "Plan queue",
-              "Review & download",
-            ].map((label, i) => (
-              <button
-                key={label}
-                aria-current={step === i + 1 ? "step" : undefined}
-                className={step === i + 1 ? "current" : ""}
-                onClick={() => changeStep(i + 1)}
-              >
-                <span className="step-number">
-                  {i === 0 && plan.pitchConfirmed ? (
-                    <Check size={14} />
-                  ) : (
-                    String(i + 1).padStart(2, "0")
-                  )}
-                </span>
-                <span>{label}</span>
-                {i < 3 && <ChevronDown className="step-chevron" size={14} />}
-              </button>
-            ))}
-            <span className="pitch-pill">
-              {plan.width} × {plan.depth} m pitch
+          <nav className="build-progress" aria-label="Build your stand steps">
+            <button
+              aria-current={step === 1 ? "step" : undefined}
+              onClick={() => changeStep(1)}
+            >
+              <span>{plan.pitchConfirmed ? <Check size={15} /> : 1}</span>Setup
+            </button>
+            <span className="progress-connector" />
+            <button
+              aria-current={step === 2 || step === 3 ? "step" : undefined}
+              onClick={() => changeStep(2)}
+            >
+              <span>2</span>Build your stand
+            </button>
+            <span className="progress-connector" />
+            <button
+              aria-current={step === 4 ? "step" : undefined}
+              onClick={() => changeStep(4)}
+            >
+              <span>3</span>Finish
+            </button>
+            <span className="build-summary">
+              {plan.width} × {plan.depth} m · {plan.objects.length} items
             </span>
           </nav>
           {externalPlan && (
@@ -513,59 +529,22 @@ export default function App() {
               </button>
             </div>
           )}
-          <div className="workspace">
-            <div className={`library-shell ${libraryOpen ? "open" : ""}`}>
-              <Library onAdd={add} onClose={() => setLibraryOpen(false)} />
-            </div>
-            {libraryOpen && (
-              <button
-                className="drawer-scrim"
-                aria-label="Close item library"
-                onClick={() => setLibraryOpen(false)}
-              />
-            )}
-            <main className="workspace-main">
-              <div className="workspace-heading">
-                <div>
-                  <span className="eyebrow">YOUR WORKSPACE</span>
-                  <h1>
-                    {step === 3
-                      ? "Give your customers a clear route"
-                      : "Every detail in its place"}
-                  </h1>
-                </div>
-                <div className="workspace-heading-actions">
-                  <button
-                    className="secondary mobile-only"
-                    onClick={() => setLibraryOpen(true)}
-                  >
-                    <Plus size={16} />
-                    Add item
-                  </button>
-                  <button className="subtle" onClick={() => setDialog("pitch")}>
-                    <Settings2 size={15} />
-                    <span>Edit pitch</span>
-                  </button>
-                  <button
-                    className="secondary panel-toggle"
-                    onClick={() => setPanelOpen(!panelOpen)}
-                  >
-                    <PanelRightOpen size={17} />
-                    <span>{issues.length} checks</span>
-                  </button>
-                </div>
-              </div>
+          <div className="play-workspace">
+            <main className="play-canvas">
               <Canvas
                 key={plan.id}
                 plan={plan}
                 selectedId={selected}
                 onSelect={(id) => {
                   setSelected(id);
-                  if (id) setPanelOpen(true);
+                  setPanelOpen(false);
                 }}
                 onCommit={commit}
                 errorIds={errorIds}
                 routeEdit={routeEdit}
+                focusWhole={step === 3 || routeEdit}
+                placing={placing}
+                onPlace={place}
                 onRouteClick={(point) => {
                   const q = plan.queue;
                   if (q.points.length >= 200) return;
@@ -576,7 +555,7 @@ export default function App() {
                     point.y > plan.depth + q.depth - q.laneWidth / 2
                   ) {
                     setMessage(
-                      "Place route points within the shaded queue zone, allowing space for the lane width.",
+                      "Tap within the queue zone, allowing room for the lane width.",
                     );
                     return;
                   }
@@ -590,26 +569,133 @@ export default function App() {
                   });
                 }}
               />
-              <footer className="workspace-footer">
-                <span>
-                  <span className="legend-swatch pitch" />
-                  Allocated pitch
-                </span>
-                <span>
-                  <span className="legend-swatch queue" />
-                  Proposed queue area
-                </span>
-                <span className="footer-note">All dimensions in metres</span>
-              </footer>
+              {!placing && !selected && !routeEdit && (
+                <div className="build-prompts">
+                  <span>
+                    <Check size={14} />
+                    {plan.objects.some((o) => o.kind === "equipment")
+                      ? "Equipment added"
+                      : "Add your equipment"}
+                  </span>
+                  <span>
+                    {plan.objects.some((o) => o.type === "Service counter") ? (
+                      <Check size={14} />
+                    ) : (
+                      <span className="prompt-dot" />
+                    )}
+                    Service point
+                  </span>
+                  <span>
+                    {plan.queue.points.length > 1 ? (
+                      <Check size={14} />
+                    ) : (
+                      <span className="prompt-dot" />
+                    )}
+                    Queue planned
+                  </span>
+                </div>
+              )}
             </main>
-            <aside className={`right-panel ${panelOpen ? "open" : ""}`}>
-              <button
-                className="icon-button close-panel mobile-only"
-                aria-label="Close planning panel"
-                onClick={() => setPanelOpen(false)}
-              >
-                <X size={19} />
-              </button>
+            <div className="builder-bottom">
+              {placing ? (
+                <div className="placement-banner">
+                  <div>
+                    <strong>Place your {placing.type.toLowerCase()}</strong>
+                    <small>Tap the plan. Drag empty space to pan.</small>
+                  </div>
+                  <button
+                    className="secondary"
+                    onClick={() => setPlacing(null)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : routeEdit ? (
+                <div className="placement-banner">
+                  <div>
+                    <strong>Draw your queue</strong>
+                    <small>
+                      Tap the shaded area. Drag points to fine-tune.
+                    </small>
+                  </div>
+                  <button
+                    className="primary"
+                    onClick={() => {
+                      setRouteEdit(false);
+                      setStep(3);
+                      setPanelOpen(true);
+                    }}
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : selectedObject ? (
+                <QuickActions
+                  object={selectedObject}
+                  onRotate={() => {
+                    if (!selectedObject.locked)
+                      commit({
+                        ...plan,
+                        objects: plan.objects.map((o) =>
+                          o.id === selectedObject.id
+                            ? { ...o, rotation: (o.rotation + 90) % 360 }
+                            : o,
+                        ),
+                      });
+                  }}
+                  onDuplicate={() => duplicate(selectedObject)}
+                  onRemove={removeSelected}
+                  onDetails={() => setPanelOpen(true)}
+                  onClose={() => setSelected(null)}
+                />
+              ) : (
+                <div className="build-launcher">
+                  <button
+                    className="primary"
+                    onClick={() => {
+                      setLibraryOpen(!libraryOpen);
+                      setPanelOpen(false);
+                    }}
+                    aria-expanded={libraryOpen}
+                  >
+                    <Plus size={22} />
+                    <span>Add equipment</span>
+                  </button>
+                  <button className="secondary" onClick={() => changeStep(3)}>
+                    <Route size={21} />
+                    <span>Plan queue</span>
+                  </button>
+                  <button
+                    className="secondary builder-checks"
+                    aria-label="Review"
+                    onClick={() => changeStep(4)}
+                  >
+                    <Check size={20} />
+                    <span>
+                      {issues.length ? `${issues.length} checks` : "Review"}
+                    </span>
+                  </button>
+                </div>
+              )}
+              {libraryOpen && (
+                <EquipmentTray
+                  onChoose={add}
+                  onClose={() => setLibraryOpen(false)}
+                />
+              )}
+            </div>
+          </div>
+          {panelOpen && (
+            <Modal
+              title={
+                selectedObject
+                  ? "Fine-tune your item"
+                  : step === 3
+                    ? "Your customer queue"
+                    : "Ready for festival day?"
+              }
+              onClose={() => setPanelOpen(false)}
+            >
               {selectedObject ? (
                 <Inspector
                   key={selectedObject.id}
@@ -623,32 +709,53 @@ export default function App() {
                       ),
                     })
                   }
-                  onDuplicate={() => duplicate(selectedObject)}
-                  onDelete={removeSelected}
-                  onClose={() => setSelected(null)}
+                  onDuplicate={() => {
+                    duplicate(selectedObject);
+                    setPanelOpen(false);
+                  }}
+                  onDelete={() => {
+                    removeSelected();
+                    setPanelOpen(false);
+                  }}
+                  onClose={() => setPanelOpen(false)}
                 />
               ) : step === 3 ? (
                 <QueuePanel
                   plan={plan}
                   onChange={commit}
                   routeEdit={routeEdit}
-                  setRouteEdit={setRouteEdit}
+                  setRouteEdit={(value) => {
+                    setRouteEdit(value);
+                    if (value) setPanelOpen(false);
+                  }}
                 />
               ) : (
                 <ReviewPanel
                   plan={plan}
                   issues={issues}
-                  step={step}
+                  step={4}
                   onStep={changeStep}
-                  onIssue={issueClick}
-                  onExport={() => setDialog("export")}
-                  onPitch={() => setDialog("pitch")}
-                  onLibrary={() => setLibraryOpen(true)}
+                  onIssue={(i) => {
+                    setPanelOpen(false);
+                    issueClick(i);
+                  }}
+                  onExport={() => {
+                    setPanelOpen(false);
+                    setDialog("export");
+                  }}
+                  onPitch={() => {
+                    setPanelOpen(false);
+                    setDialog("pitch");
+                  }}
+                  onLibrary={() => {
+                    setPanelOpen(false);
+                    setLibraryOpen(true);
+                  }}
                   onNotes={(notes) => commit({ ...plan, notes })}
                 />
               )}
-            </aside>
-          </div>
+            </Modal>
+          )}
         </div>
       )}
       {message && (
@@ -663,17 +770,30 @@ export default function App() {
           </button>
         </div>
       )}
+      {dialog === "setup" && (
+        <SetupPicker
+          plan={plan}
+          onClose={() => setDialog(null)}
+          onChoose={(p) => {
+            commit(p);
+            setDialog(null);
+            setSelected(null);
+            setLibraryOpen(true);
+            setMessage(
+              "Your stand is taking shape. Pick your first piece of equipment.",
+            );
+          }}
+        />
+      )}
       {dialog === "pitch" && (
         <PitchSetup
           plan={plan}
           onClose={() => setDialog(null)}
           onSave={(p) => {
             commit(p);
-            setDialog(null);
+            setDialog(p.objects.length ? null : "setup");
             setStep(2);
-            setMessage(
-              "Pitch confirmed. Add your equipment and check its dimensions.",
-            );
+            setMessage("Pitch ready. Time to build your stand.");
           }}
         />
       )}
@@ -751,7 +871,7 @@ export default function App() {
           onClose={() => setDialog(null)}
         >
           <div className="help-content">
-            <h3>Four steps to your onboarding upload</h3>
+            <h3>Three steps to your onboarding upload</h3>
             <ol>
               <li>
                 The standard pitch is 7 × 5 m. Different pitch sizes are only
@@ -761,11 +881,9 @@ export default function App() {
               </li>
               <li>
                 Add your equipment, service points and staff access. Replace
-                estimated sizes with real measurements.
-              </li>
-              <li>
-                Draw the customer queue in the shaded area. Check lane width,
-                direction and waiting-capacity assumptions.
+                estimated sizes with real measurements. Draw the customer queue
+                in the shaded area. Check lane width, direction and
+                waiting-capacity assumptions.
               </li>
               <li>
                 Review warnings, download the PNG and upload it in vendor
@@ -774,14 +892,17 @@ export default function App() {
             </ol>
             <h3>Moving and editing</h3>
             <p>
-              Click an item to edit its name, dimensions, rotation, position,
-              clearance and notes. Drag it to move, or use the position fields
-              and move buttons. Arrow keys move a focused item by 0.1 m; Shift +
-              arrow moves it by 1 m.
+              Choose equipment from the tray, then tap the plan to place it. Tap
+              an item for Rotate, Duplicate and Remove. Open Details for its
+              name, dimensions, position, clearance and notes. Drag it to move,
+              or use the position fields and move buttons. Arrow keys move a
+              focused item by 0.1 m; Shift + arrow moves it by 1 m.
             </p>
             <p>
-              Drag empty space to pan. Use Fit pitch or Fit whole plan to
-              recover your view. Hold Shift while dragging to bypass snapping.
+              Drag empty space to pan, or use two fingers to pan and pinch to
+              zoom. Use Fit whole plan, or find Fit pitch under More canvas
+              controls, to recover your view. Hold Shift while dragging to
+              bypass snapping.
             </p>
             <h3>Keyboard shortcuts</h3>
             <p>

@@ -224,3 +224,26 @@ test("left-to-right serpentine runs horizontally and progresses towards the stan
   p.queue.laneWidth = 0.1;
   assert.ok(queueTemplate(p, "serpentine-horizontal").length <= 200);
 });
+
+test("right-to-left serpentine mirrors the horizontal route and survives saving", () => {
+  const p = plan();
+  const forward = queueTemplate(p, "serpentine-horizontal");
+  const points = queueTemplate(p, "serpentine-horizontal-reverse");
+  assert.ok(points[0].x > points[1].x);
+  assert.equal(points[0].y, points[1].y);
+  assert.ok(points[2].y < points[1].y);
+  assert.deepEqual(
+    points,
+    forward.map(({ x, y }) => ({
+      x: Math.round((p.width - x) * 100) / 100,
+      y,
+    })),
+  );
+  p.queue = { ...p.queue, points, template: "serpentine-horizontal-reverse" };
+  assert.equal(parsePlan(p).queue.template, "serpentine-horizontal-reverse");
+  assert.ok(
+    !issuesFor(p).some(
+      (i) => i.id === "queue-crossing" || i.id === "queue-bounds",
+    ),
+  );
+});

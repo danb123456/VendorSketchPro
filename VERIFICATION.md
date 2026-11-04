@@ -2,28 +2,18 @@
 
 ## Automated
 
-- Production build and strict TypeScript check passed (`npm run build`).
-- Unused imports/parameters check passed (`npx tsc --noEmit --noUnusedLocals --noUnusedParameters`).
-- 14 regression tests passed (`npm test`), covering gesture history, redo branching, rotated collision detection, touching edges, rotated boundaries, structures containing equipment, free placement, queue geometry/capacity, invalid imports, legacy migration, counters and queue limits.
+Production build, strict TypeScript and unused imports/parameters checks passed. All 22 tests passed, covering history, collision/boundary checks, migration, import validation, queue geometry and both horizontal directions, starter setup, tap placement, anchored pinch zoom, map coordinate transforms, independent DXF parsing, scaled SVG and raster memory limits.
 
 ## Browser checks
 
-Verified in the Codex in-app browser, at approximately 824 px and 1280 px viewport widths:
+Codex in-app browser: equipment tray → choose Oven → tap placement → quick rotation → Details; review shows no issues for the sample. Existing saved pitch dimensions remain intact. Right-to-left queue starts at x=5.4 m and moves to x=0.6 m on the first lane of a 6 m frontage, with subsequent lanes progressing towards the stand. Capacity remains 41 people for a 28.8 m route at 0.7 m spacing.
 
-- New vendor details → pitch confirmation → drawing workspace.
-- Adding equipment and access markers, responsive property panels, exact coordinate editing.
-- Moving an item from (0.2, 0.2) to (2.2, 1.2), then Undo restoring (0.2, 0.2).
-- Serpentine queue: 28.8 m route, 0.7 m/person spacing → 41 estimated people against a 35-person target.
-- Save checkpoint → clear equipment and queue while keeping pitch → restore prior checkpoint, recovering six items and queue.
-- Reload retained the six-item plan, vendor reference, 6 × 4 m pitch and 41-person queue estimate.
-- Branded export preview, PNG generation and PDF generation completed with download-started status.
+A real downloaded report PNG was inspected: 2400 × 2616 pixels. PDF was downloaded and identified as a one-page PDF. Transparent map PNG was downloaded (2400 × 4000 pixels); DXF was downloaded, opened with the independent dxf-parser package, and checked for metre units, separate layers and preserved right-to-left queue coordinates. The persistent Save file link was exercised successfully for PDF, overlay and DXF.
+
+Responsive iframe checks at 320 and 390 px portrait widths, plus 844 × 390 landscape. At 320 px, body width and scroll width both equal 320 px. Mobile review and export generation completed. The browser automation could not retrieve a saved file from the embedded phone preview, so mobile OS-level download/save behavior is not independently confirmed. PNG pre-generation, a persistent download link and Web Share where supported provide alternative save paths.
 
 ## Scope and limits
 
-This is a static, browser-local application. There is no account, backend, transmission of plans or simulated submission/approval. The existing onboarding form remains the submission destination after the vendor downloads a PNG. Its optional HTTPS link can be configured in `.env.example`.
+Static, browser-local application; no accounts or backend. Downloading does not upload or submit a plan. Platform-specific CAD/OnePlan integration is deferred until a receiving tool is chosen. Mapping exports use local stand coordinates and require placement/rotation in the master event map.
 
-The production GitHub/Vercel project has not been changed or deployed. Browser downloads were triggered and image/PDF generation completed; OS-level saved-file retrieval was not independently inspected. A physical phone, every browser engine, a full accessibility audit, storage-quota exhaustion and the optional external onboarding link were not tested. Import validation and migration have automated coverage; native file-picker import was not exercised in the browser.
-
-## Queue template update
-
-Left-to-right horizontal serpentine added alongside the existing templates. Automated coverage checks horizontal direction, progress towards the stand, lane boundaries, non-crossing geometry, backup round-trip and route-point limits. Production build and all 14 tests passed.
+Physical iPhone/Android devices, Safari, true multi-touch input, full accessibility audit, storage quota exhaustion and external onboarding integration have not been tested. Pinch math has automated coverage. Existing prior-version checks covered drag/undo, checkpoint restore and reload persistence.
