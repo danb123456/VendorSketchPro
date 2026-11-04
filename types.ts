@@ -1,82 +1,286 @@
-
-export type ObjectType = 
-  | 'Pagoda'
-  | 'Tent'
-  | 'Van/Truck'
-  | 'Smoker'
-  | 'Hot Hold'
-  | 'Oven'
-  | 'Fridge'
-  | 'Freezer'
-  | 'Baine Marie'
-  | 'Asado'
-  | 'Fryer'
-  | 'Prep Table'
-  | 'Other (Hot)'
-  | 'Other (aesthetic)'
-  | 'Other (cold)'
-  | 'Other (misc)'
-  | 'Pitmaster'
-  | 'Chef'
-  | 'Manager'
-  | 'Server'
-  | 'Service Point'
-  | 'Collection Point'
-  | 'Queue Barrier'
-  | 'Fire Extinguisher'
-  | 'Entry/Exit Point'
-  | 'Bench Set'
-  | 'Cabin/Chalet'
-  | 'Flag';
-
+export type Kind =
+  | "structure"
+  | "equipment"
+  | "point"
+  | "safety"
+  | "staff"
+  | "barrier"
+  | "other";
+export interface CatalogItem {
+  type: string;
+  category: string;
+  kind: Kind;
+  width: number;
+  depth: number;
+  color: string;
+  symbol: string;
+}
 export interface StandObject {
   id: string;
-  type: ObjectType;
-  x: number; // in meters relative to boundary top-left
-  y: number; // in meters
-  width: number; // in meters
-  length: number; // in meters
-  rotation: number; // in degrees
+  type: string;
+  name: string;
+  kind: Kind;
+  x: number;
+  y: number;
+  width: number;
+  depth: number;
+  rotation: number;
   color: string;
+  symbol: string;
+  locked: boolean;
+  clearance: number;
+  notes: string;
 }
-
-export interface VendorInfo {
+export interface Point {
+  x: number;
+  y: number;
+}
+export interface Queue {
+  depth: number;
+  laneWidth: number;
+  personSpacing: number;
+  target: number;
+  points: Point[];
+  template:
+    "none" | "straight" | "serpentine" | "serpentine-horizontal" | "custom";
+}
+export interface Plan {
+  schema: 2;
+  id: string;
   vendorId: string;
   traderName: string;
+  eventName: string;
+  width: number;
+  depth: number;
+  pitchConfirmed: boolean;
+  objects: StandObject[];
+  queue: Queue;
+  notes: string;
+  updatedAt: string;
+  revision: number;
 }
-
-export interface Boundary {
-  width: number; // in meters
-  length: number; // in meters
+export interface Version {
+  id: string;
+  label: string;
+  at: string;
+  plan: Plan;
 }
-
-export const OBJECT_DEFAULTS: Record<ObjectType, { width: number, length: number, color: string, transparent: boolean, ignoreCollision: boolean }> = {
-  'Pagoda': { width: 3, length: 3, color: 'rgba(59, 130, 246, 0.3)', transparent: true, ignoreCollision: true },
-  'Tent': { width: 6, length: 10, color: 'rgba(148, 163, 184, 0.3)', transparent: true, ignoreCollision: true },
-  'Van/Truck': { width: 2.5, length: 6, color: 'rgba(107, 114, 128, 0.3)', transparent: true, ignoreCollision: true },
-  'Smoker': { width: 1.2, length: 1, color: 'rgba(31, 41, 55, 1)', transparent: false, ignoreCollision: false },
-  'Hot Hold': { width: 0.8, length: 0.8, color: 'rgba(239, 68, 68, 1)', transparent: false, ignoreCollision: false },
-  'Oven': { width: 0.9, length: 0.9, color: 'rgba(249, 115, 22, 1)', transparent: false, ignoreCollision: false },
-  'Fridge': { width: 0.7, length: 0.7, color: 'rgba(14, 165, 233, 1)', transparent: false, ignoreCollision: false },
-  'Freezer': { width: 0.7, length: 0.7, color: 'rgba(2, 132, 199, 1)', transparent: false, ignoreCollision: false },
-  'Baine Marie': { width: 1.2, length: 0.6, color: 'rgba(245, 158, 11, 1)', transparent: false, ignoreCollision: false },
-  'Asado': { width: 1.5, length: 1, color: 'rgba(185, 28, 28, 1)', transparent: false, ignoreCollision: false },
-  'Fryer': { width: 0.6, length: 0.8, color: 'rgba(234, 179, 8, 1)', transparent: false, ignoreCollision: false },
-  'Prep Table': { width: 2, length: 1, color: 'rgba(148, 163, 184, 1)', transparent: false, ignoreCollision: false },
-  'Other (Hot)': { width: 1, length: 1, color: 'rgba(153, 27, 27, 1)', transparent: false, ignoreCollision: false },
-  'Other (aesthetic)': { width: 0.5, length: 0.5, color: 'rgba(16, 185, 129, 1)', transparent: false, ignoreCollision: false },
-  'Other (cold)': { width: 1, length: 1, color: 'rgba(56, 189, 248, 1)', transparent: false, ignoreCollision: false },
-  'Other (misc)': { width: 1, length: 1, color: 'rgba(148, 163, 184, 1)', transparent: false, ignoreCollision: false },
-  'Pitmaster': { width: 0.5, length: 0.5, color: 'rgba(220, 38, 38, 1)', transparent: false, ignoreCollision: false },
-  'Chef': { width: 0.5, length: 0.5, color: 'rgba(255, 255, 255, 1)', transparent: false, ignoreCollision: false },
-  'Manager': { width: 0.5, length: 0.5, color: 'rgba(30, 41, 59, 1)', transparent: false, ignoreCollision: false },
-  'Server': { width: 0.5, length: 0.5, color: 'rgba(79, 70, 229, 1)', transparent: false, ignoreCollision: false },
-  'Service Point': { width: 2, length: 0.6, color: 'rgba(16, 185, 129, 1)', transparent: false, ignoreCollision: false },
-  'Collection Point': { width: 1, length: 0.6, color: 'rgba(139, 92, 246, 1)', transparent: false, ignoreCollision: false },
-  'Queue Barrier': { width: 2, length: 0.1, color: 'rgba(100, 116, 139, 1)', transparent: false, ignoreCollision: true },
-  'Fire Extinguisher': { width: 0.4, length: 0.4, color: 'rgba(220, 38, 38, 1)', transparent: false, ignoreCollision: true },
-  'Entry/Exit Point': { width: 1.2, length: 0.2, color: 'rgba(34, 197, 94, 1)', transparent: false, ignoreCollision: true },
-  'Bench Set': { width: 2, length: 1.5, color: 'rgba(120, 113, 108, 1)', transparent: false, ignoreCollision: false },
-  'Cabin/Chalet': { width: 2.4, length: 3, color: 'rgba(146, 64, 14, 0.4)', transparent: true, ignoreCollision: true },
-  'Flag': { width: 0.4, length: 0.4, color: 'rgba(244, 63, 94, 1)', transparent: false, ignoreCollision: true },
-};
+export interface Issue {
+  id: string;
+  severity: "error" | "warning";
+  message: string;
+  objectId?: string;
+  step: number;
+}
+const item = (
+  type: string,
+  category: string,
+  kind: Kind,
+  width: number,
+  depth: number,
+  color: string,
+  symbol: string,
+): CatalogItem => ({ type, category, kind, width, depth, color, symbol });
+export const CATALOG: CatalogItem[] = [
+  item(
+    "Service counter",
+    "Service & access",
+    "point",
+    2,
+    0.6,
+    "#239374",
+    "counter",
+  ),
+  item(
+    "Collection counter",
+    "Service & access",
+    "point",
+    1,
+    0.6,
+    "#7a63c2",
+    "counter",
+  ),
+  item(
+    "Staff access",
+    "Service & access",
+    "point",
+    1.2,
+    0.4,
+    "#3d8a72",
+    "door",
+  ),
+  item(
+    "Queue entrance",
+    "Service & access",
+    "point",
+    1,
+    0.4,
+    "#318a9b",
+    "arrow",
+  ),
+  item(
+    "Customer exit",
+    "Service & access",
+    "point",
+    1,
+    0.4,
+    "#318a9b",
+    "arrow",
+  ),
+  item("Pergola", "Structures", "structure", 3, 3, "#85aec9", "tent"),
+  item("Tent", "Structures", "structure", 6, 4, "#85aec9", "tent"),
+  item("Cabin / chalet", "Structures", "structure", 2.4, 3, "#ac8a69", "cabin"),
+  item("Van / truck", "Structures", "structure", 2.5, 6, "#82929e", "truck"),
+  item(
+    "Smoker",
+    "Cooking & preparation",
+    "equipment",
+    1.2,
+    1,
+    "#4b5964",
+    "grill",
+  ),
+  item(
+    "Oven",
+    "Cooking & preparation",
+    "equipment",
+    0.9,
+    0.9,
+    "#d58a55",
+    "oven",
+  ),
+  item(
+    "Fryer",
+    "Cooking & preparation",
+    "equipment",
+    0.6,
+    0.8,
+    "#d5a452",
+    "fryer",
+  ),
+  item(
+    "Asado grill",
+    "Cooking & preparation",
+    "equipment",
+    1.5,
+    1,
+    "#be7860",
+    "grill",
+  ),
+  item(
+    "Hot holding unit",
+    "Cooking & preparation",
+    "equipment",
+    0.8,
+    0.8,
+    "#cf8b72",
+    "oven",
+  ),
+  item(
+    "Bain-marie",
+    "Cooking & preparation",
+    "equipment",
+    1.2,
+    0.6,
+    "#d5a452",
+    "counter",
+  ),
+  item(
+    "Prep table",
+    "Cooking & preparation",
+    "equipment",
+    2,
+    1,
+    "#8c9ca8",
+    "table",
+  ),
+  item("Fridge", "Cold storage", "equipment", 0.7, 0.7, "#76a9bf", "fridge"),
+  item("Freezer", "Cold storage", "equipment", 0.7, 0.7, "#6a91b3", "fridge"),
+  item(
+    "Fire extinguisher",
+    "Safety & utilities",
+    "safety",
+    0.4,
+    0.4,
+    "#bf655c",
+    "extinguisher",
+  ),
+  item(
+    "Fire blanket",
+    "Safety & utilities",
+    "safety",
+    0.4,
+    0.2,
+    "#bf655c",
+    "safety",
+  ),
+  item(
+    "Handwashing station",
+    "Safety & utilities",
+    "equipment",
+    0.6,
+    0.6,
+    "#74a8ab",
+    "sink",
+  ),
+  item(
+    "Water connection",
+    "Safety & utilities",
+    "safety",
+    0.3,
+    0.3,
+    "#74a8ab",
+    "water",
+  ),
+  item(
+    "Power connection",
+    "Safety & utilities",
+    "safety",
+    0.3,
+    0.3,
+    "#bc9e57",
+    "power",
+  ),
+  item(
+    "Gas cylinder",
+    "Safety & utilities",
+    "equipment",
+    0.4,
+    0.4,
+    "#b69b78",
+    "gas",
+  ),
+  item(
+    "Waste bin",
+    "Safety & utilities",
+    "equipment",
+    0.5,
+    0.5,
+    "#8c9c88",
+    "bin",
+  ),
+  item(
+    "Queue barrier",
+    "Queue & furniture",
+    "barrier",
+    2,
+    0.1,
+    "#73848e",
+    "barrier",
+  ),
+  item(
+    "Bench set",
+    "Queue & furniture",
+    "equipment",
+    2,
+    1.5,
+    "#a2917a",
+    "table",
+  ),
+  item("Flag", "Queue & furniture", "other", 0.4, 0.4, "#ba8a9b", "flag"),
+  item("Chef", "People", "staff", 0.5, 0.5, "#849ea5", "person"),
+  item("Pitmaster", "People", "staff", 0.5, 0.5, "#849ea5", "person"),
+  item("Server", "People", "staff", 0.5, 0.5, "#849ea5", "person"),
+  item("Manager", "People", "staff", 0.5, 0.5, "#849ea5", "person"),
+  item("Custom item", "Custom", "other", 1, 1, "#8a9b9e", "box"),
+];
